@@ -1,7 +1,7 @@
 # FB-TS: filter-bank Riemannian decoder with causal re-centring
 
 A lightweight, calibration-free EEG decoder for **Track 02 (BCI decoding)** of the
-[EEG/EMG Foundation Challenge 2026](https://github.com/neural-interfaces26/2026-competition).
+[EEG/EMG Foundation Challenge 2026](https://github.com/neural-interfaces26/2026-competition) NOT SUBMITTED.
 It classifies 4-s windows into three cued mental commands: motor imagery, mental subtraction
 and word generation. It is one subject-agnostic model with label-free, strictly causal
 adaptation inside each session.
