@@ -1,0 +1,34 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest pyflakes
+      - name: Lint
+        run: python -m pyflakes submission.py train_fbts.py prepare_data.py make_synthetic.py run_pipeline.py tests
+      - name: Unit tests
+        run: python -m pytest -q
+      - name: End-to-end on tiny synthetic data (train -> zip -> replay)
+        run: |
+          python make_synthetic.py --out EMData/tiny.npz --subjects 3 --sessions 2 --per-class-ctx 8
+          python run_pipeline.py all --preset v2-nocv --data EMData/tiny.npz --sessions 0
+          python train_fbts.py EMData/tiny.npz --set "C=0.05,prior_weight=2,alpha_min=0.03" --grid "bands=wide,repo" --ensemble 2 -j 2 --out runs/grid
+          python run_pipeline.py replay runs/grid --data EMData/tiny.npz --sessions 0
